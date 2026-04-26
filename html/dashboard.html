@@ -117,6 +117,13 @@
         .skel { border-radius: 10px; height: 145px; background: linear-gradient(90deg, var(--border) 25%, var(--accent) 50%, var(--border) 75%); background-size: 200% 100%; animation: skel-anim 1.6s infinite; }
         @keyframes skel-anim { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
+        /* ── KPI color variants ── */
+        .kpi-card--halal    { border-color: rgba(9,135,53,0.35); }
+        .kpi-card--halal    .kpi-card__value { color: #098735; }
+        .kpi-card--halal::before { background: #098735 !important; opacity: 0.07; }
+        .kpi-card--excluded { border-color: rgba(180,40,40,0.28); }
+        .kpi-card--excluded .kpi-card__value { color: #b91c1c; }
+        .kpi-card--excluded::before { background: #b91c1c !important; opacity: 0.07; }
         /* ── Source pill ── */
         .source-note { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; }
         .source-note::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); display: inline-block; animation: pulse 2s infinite; }
@@ -156,10 +163,15 @@
                     <span class="kpi-card__value" id="val-total">…</span>
                     <span class="kpi-card__label">Produits alimentaires</span>
                 </div>
-                <div class="kpi-card kpi-card--loading">
+                <div class="kpi-card kpi-card--loading kpi-card--halal">
                     <span class="kpi-card__emoji">✅</span>
                     <span class="kpi-card__value" id="val-halal">…</span>
                     <span class="kpi-card__label">Produits halal certifiés</span>
+                </div>
+                <div class="kpi-card kpi-card--loading kpi-card--excluded">
+                    <span class="kpi-card__emoji">🚫</span>
+                    <span class="kpi-card__value" id="val-excluded">…</span>
+                    <span class="kpi-card__label">Produits non-halal signalés</span>
                 </div>
                 <div class="kpi-card kpi-card--loading">
                     <span class="kpi-card__emoji">🌐</span>
@@ -181,8 +193,8 @@
             <div class="mini-grid">
                 <div class="mini-stat"><div class="mini-stat__val" id="stat-scans">0</div><div class="mini-stat__lbl">🔍 Produits consultés</div></div>
                 <div class="mini-stat"><div class="mini-stat__val" id="stat-fav">0</div><div class="mini-stat__lbl">⭐ Favoris</div></div>
-                <div class="mini-stat"><div class="mini-stat__val" id="stat-cart">0</div><div class="mini-stat__lbl">�� Liste de courses</div></div>
-                <div class="mini-stat"><div class="mini-stat__val" id="stat-black">0</div><div class="mini-stat__lbl">�� Blacklistés</div></div>
+                <div class="mini-stat"><div class="mini-stat__val" id="stat-cart">0</div><div class="mini-stat__lbl">🛒 Liste de courses</div></div>
+                <div class="mini-stat"><div class="mini-stat__val" id="stat-black">0</div><div class="mini-stat__lbl">🚫 Blacklistés</div></div>
             </div>
         </section>
 
@@ -217,7 +229,7 @@
 
         <!-- History -->
         <section class="dash-section">
-            <div class="dash-section__title">�� Mon historique de consultation</div>
+            <div class="dash-section__title">🕐 Mon historique de consultation</div>
             <ul class="history-list" id="history-list">
                 <li style="color:var(--muted);padding:1.5rem 0;text-align:center">
                     Aucun historique encore.
@@ -233,8 +245,11 @@
 
     function getList(k) { try { return JSON.parse(localStorage.getItem(k)||'[]'); } catch { return []; } }
 
-    // Format number nicely
+    function esc(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
     function fmt(n) {
+        if (!Number.isFinite(n)) return '—';
         if (n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'')+'\u00a0M';
         if (n >= 1e3) return (n/1e3).toFixed(0)+'\u00a0K';
         return n.toLocaleString('fr-FR');
@@ -245,13 +260,19 @@
         e.textContent = v;
         e.closest('.kpi-card')?.classList.remove('kpi-card--loading');
     }
+    async function apiFetch(url, timeout = 7000) {
+        const r = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    }
 
     function prodCard(p) {
-        const img   = p.image_front_small_url || p.image_front_url || DEFAULT_IMG;
-        const name  = p.product_name || p.code || '—';
-        const brand = Array.isArray(p.brands) ? p.brands[0] : (p.brands||'');
-        return `<div class="prod-card"><a href="product.html?code=${p.code}" title="${name}">
-            <img src="${img}" onerror="this.src='${DEFAULT_IMG}'" alt="${name}" loading="lazy">
+        if (!p || !p.code) return '';
+        const img   = esc(p.image_front_small_url || p.image_front_url || DEFAULT_IMG);
+        const name  = esc(p.product_name || p.code || '—');
+        const brand = esc(Array.isArray(p.brands) ? p.brands[0] : (p.brands||''));
+        return `<div class="prod-card"><a href="product.html?code=${esc(p.code)}" title="${name}">
+            <img src="${img}" onerror="this.src='${esc(DEFAULT_IMG)}'" alt="${name}" loading="lazy">
             <div class="prod-card__name">${name}</div>
             <div class="prod-card__brand">${brand}</div>
         </a></div>`;
@@ -284,15 +305,21 @@
     const histEl = document.getElementById('history-list');
     if (scans.length) {
         document.getElementById('btn-clear-history').style.display = '';
-        histEl.innerHTML = scans.slice(-25).reverse().map(p => `
-            <li class="history-item">
-                <img src="${p.img||DEFAULT_IMG}" onerror="this.src='${DEFAULT_IMG}'" alt="" loading="lazy">
+        histEl.innerHTML = scans.slice(-25).reverse().map(p => {
+            if (!p || !p.code) return '';
+            const img  = esc(p.img||DEFAULT_IMG);
+            const name = esc(p.name||p.code||'');
+            const meta = esc(p.brand||'');
+            const date = (() => { try { return new Date(p.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}); } catch { return ''; } })();
+            return `<li class="history-item">
+                <img src="${img}" onerror="this.src='${DEFAULT_IMG}'" alt="" loading="lazy">
                 <div class="history-item__info">
-                    <div class="history-item__name">${p.name||p.code}</div>
-                    <div class="history-item__meta">${p.brand||''} · ${new Date(p.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}</div>
+                    <div class="history-item__name">${name}</div>
+                    <div class="history-item__meta">${meta}${meta&&date?' · ':''}${date}</div>
                 </div>
-                <a href="product.html?code=${p.code}" class="link">Voir →</a>
-            </li>`).join('');
+                <a href="product.html?code=${esc(p.code)}" class="link">Voir →</a>
+            </li>`;
+        }).join('');
     }
     document.getElementById('btn-clear-history').addEventListener('click', () => {
         if (!confirm('Effacer tout l\'historique de consultation ?')) return;
@@ -318,17 +345,17 @@
         // Halal products
         try {
             const r = await fetch('/proxy/v2/search?page_size=1&fields=code&labels_tags=en:halal', {signal: AbortSignal.timeout(6000)});
-            if (r.ok) {
-                const d = await r.json();
-                if (typeof d.count === 'number') { setVal('val-halal', fmt(d.count)); }
-            } else { throw new Error(); }
+            if (!r.ok) throw new Error('http '+r.status);
+            const d = await r.json();
+            if (Number.isFinite(d.count)) setVal('val-halal', fmt(d.count));
+            else throw new Error('no count');
         } catch {
             try {
                 const r = await fetch('/proxy/search/search?page_size=1&sort_by=unique_scans_n&filters=labels_tags%3Aen%3Ahalal', {signal: AbortSignal.timeout(6000)});
                 const d = await r.json();
-                const c = d.count;
-                const exact = d.is_count_exact !== false;
-                setVal('val-halal', exact ? fmt(c) : (c >= 10000 ? '> 10\u00a0K' : fmt(c)));
+                if (Number.isFinite(d.count)) {
+                    setVal('val-halal', d.is_count_exact === false && d.count >= 10000 ? '> 10 K' : fmt(d.count));
+                } else setVal('val-halal', '—');
             } catch { setVal('val-halal', '—'); }
         }
 
@@ -341,13 +368,31 @@
             else setVal('val-countries', '—');
         } catch { setVal('val-countries', '—'); }
 
+        // Excluded (non-halal signalés)
+        try {
+            const r = await fetch('/proxy/v2/search?page_size=1&fields=code&labels_tags=en:haram', {signal: AbortSignal.timeout(6000)});
+            if (!r.ok) throw new Error('http '+r.status);
+            const d = await r.json();
+            if (Number.isFinite(d.count)) setVal('val-excluded', fmt(d.count));
+            else throw new Error('no count');
+        } catch {
+            try {
+                // Fallback: chercher via search avec filtre
+                const r = await fetch('/proxy/search/search?page_size=1&sort_by=unique_scans_n&filters=labels_tags%3Aen%3Aharam', {signal: AbortSignal.timeout(6000)});
+                const d = await r.json();
+                if (Number.isFinite(d.count)) {
+                    setVal('val-excluded', d.is_count_exact === false && d.count >= 10000 ? '> 10 K' : fmt(d.count));
+                } else setVal('val-excluded', '—');
+            } catch { setVal('val-excluded', '—'); }
+        }
+
         // Contributors
         try {
             const r = await fetch('/proxy/facets/contributors.json', {signal: AbortSignal.timeout(6000)});
+            if (!r.ok) throw new Error('http '+r.status);
             const d = await r.json();
             const n = d.tags?.length || (Array.isArray(d) ? d.length : 0);
-            if (n > 0) setVal('val-contrib', fmt(n));
-            else setVal('val-contrib', '—');
+            setVal('val-contrib', n > 0 ? fmt(n) : '—');
         } catch { setVal('val-contrib', '—'); }
     }
 
@@ -391,7 +436,7 @@
         el.innerHTML = '<p style="color:var(--muted);grid-column:1/-1;padding:1rem 0">Impossible de charger les produits populaires pour le moment.</p>';
     }
 
-    Promise.all([loadStats(), loadRecent(), loadTop()]);
+    Promise.all([loadStats(), loadRecent(), loadTop()]).catch(() => {});
     </script>
 </body>
 </html>
