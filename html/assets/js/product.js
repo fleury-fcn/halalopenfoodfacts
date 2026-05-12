@@ -99,17 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchProductDetails(code) {
         try {
-            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
-            if (!response.ok) {
-                throw new Error(`Product request failed with status ${response.status}`);
+            // Essayer d'abord notre backend local (données locales + images)
+            const localResponse = await fetch(`/proxy/v2/product/${code}.json`);
+            if (localResponse.ok) {
+                const localData = await parseApiJsonResponse(localResponse, 'Fiche produit locale');
+                if (localData.product) {
+                    displayProduct(localData.product);
+                    return;
+                }
             }
-            const data = await parseApiJsonResponse(response, 'Fiche produit');
-
-            if (data.status === 1 && data.product) {
-                displayProduct(data.product);
-            } else {
-                productContent.innerHTML = '<p class="product-empty">Ce produit est introuvable pour le moment.</p>';
-            }
+            // Produit absent de notre base locale
+            productContent.innerHTML = '<p class="product-empty">Ce produit n\'est pas encore dans notre base de données. Vous pouvez le retrouver sur <a href="https://world.openfoodfacts.org/product/' + code + '" target="_blank">Open Food Facts</a>.</p>';
         } catch (error) {
             console.error('Error fetching product:', error);
             productContent.innerHTML = '<p class="product-empty">Erreur réseau lors du chargement de la fiche produit.</p>';
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const additives = formatList(product.additives_tags, 'Non renseigné');
         const traces = formatList(product.traces_tags, product.traces || 'Non renseigné');
         const ingredients = formatMultiline(product.ingredients_text_fr || product.ingredients_text || 'Ajoutez la liste d\'ingrédients détaillée pour aider la communauté.');
-        const barcodeImage = product.code ? `https://barcodeapi.org/api/auto/${product.code}?text=${product.code}` : null;
+        const barcodeImage = null; // rendu via canvas après affichage
         const editUrl = product.code ? `https://world.openfoodfacts.org/product/${product.code}` : 'https://world.openfoodfacts.org';
         const nutriments = product.nutriments || {};
         const energyKcal = getEnergyValue(nutriments);
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <article>
                                 <span class="meta-label">Code-barres</span>
                                 <strong>${product.code || '—'}</strong>
-                                ${barcodeImage ? `<img src="${barcodeImage}" alt="Code-barres ${product.code}" class="barcode-visual">` : ''}
+                                ${product.code ? `<svg id="barcode-svg" class="barcode-visual"></svg>` : ''}
                             </article>
                             <article>
                                 <span class="meta-label">Catégories</span>
@@ -304,6 +304,16 @@ document.addEventListener('DOMContentLoaded', () => {
         recordScanHistory(product);
         injectCertifications(product);
         injectComments(product.code);
+        // Rendre le code-barres en SVG via JsBarcode
+        if (product.code) {
+            const svgEl = document.getElementById('barcode-svg');
+            if (svgEl && typeof JsBarcode !== 'undefined') {
+                try {
+                    const barcodeFormat = product.code.length === 8 ? 'EAN8' : product.code.length === 13 ? 'EAN13' : 'CODE128';
+                    JsBarcode(svgEl, product.code, { format: barcodeFormat, lineColor: '#222', width: 2, height: 60, displayValue: false, margin: 6 });
+                } catch(e) { svgEl.style.display = 'none'; }
+            }
+        }
     }
 
     // F9 — Certifications visuelles
