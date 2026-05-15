@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const categorySelect = document.getElementById('category-select');
     const sortSelect = document.getElementById('sort-select');
     const productCountDisplay = document.getElementById('product-count');
+    const halalCountDisplay = document.getElementById('halal-count');
     const excludedCountDisplay = document.getElementById('excluded-count');
     const contributorsCountDisplay = document.getElementById('contributors-count');
     const countryCountDisplay = document.getElementById('country-count');
@@ -398,6 +399,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (productCountDisplay) {
                 productCountDisplay.textContent = formatStatValue(stats.total);
+            }
+            if (halalCountDisplay) {
+                halalCountDisplay.textContent = formatStatValue(stats.halal || 0);
             }
             if (excludedCountDisplay) {
                 excludedCountDisplay.textContent = formatStatValue(stats.excluded || 0);
