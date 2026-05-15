@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         category: '',
         sort: 'popularity',
         country: '',
+        halalOnly: false,
         advanced: createEmptyAdvancedFilters()
     };
     let recentLiveFeedProducts = [];
@@ -167,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Filtres tags halal
         currentFilters.tags.forEach(tag => params.append('labels_tags', tag));
+        if (currentFilters.halalOnly) params.append('is_halal', '1');
         if (currentFilters.category) params.append('categories_tags', currentFilters.category);
         if (currentFilters.country)  params.append('countries_tags', `en:${currentFilters.country}`);
 
@@ -386,37 +388,25 @@ document.addEventListener('DOMContentLoaded', () => {
         setApiLiveState('stats', 'pending');
 
         try {
-            const [inventoryStats, contributorsResponse] = await Promise.all([
-                fetchInventoryStats(selectedCountry),
-                fetch(CONTRIBUTORS_FACET_ENDPOINT)
-            ]);
-
-            const { totalCount } = inventoryStats;
+            // Utiliser /proxy/stats qui retourne tous les vrais chiffres de notre base locale
+            const statsUrl = selectedCountry
+                ? `/proxy/stats?country=${encodeURIComponent(selectedCountry)}`
+                : '/proxy/stats';
+            const statsResponse = await fetch(statsUrl);
+            if (!statsResponse.ok) throw new Error(`Stats HTTP ${statsResponse.status}`);
+            const stats = await statsResponse.json();
 
             if (productCountDisplay) {
-                if (typeof totalCount === 'number') {
-                    productCountDisplay.textContent = formatStatValue(totalCount);
-                } else {
-                    productCountDisplay.textContent = 'Chargement...';
-                }
+                productCountDisplay.textContent = formatStatValue(stats.total);
             }
-
             if (excludedCountDisplay) {
-                excludedCountDisplay.textContent = '0';
+                excludedCountDisplay.textContent = formatStatValue(stats.excluded || 0);
             }
-
-            if (contributorsResponse.ok && contributorsCountDisplay) {
-                const contributorsData = await parseApiJsonResponse(contributorsResponse, 'Stats contributeurs');
-                const contributorCount = contributorsData?.tags?.length || contributorsData.count;
-                if (typeof contributorCount === 'number') {
-                    contributorsCountDisplay.textContent = formatStatValue(contributorCount);
-                } else {
-                    contributorsCountDisplay.textContent = 'Chargement...';
-                }
+            if (contributorsCountDisplay) {
+                contributorsCountDisplay.textContent = formatStatValue(stats.contributors || 0);
             }
-
             if (countryCountDisplay) {
-                countryCountDisplay.textContent = selectedCountry ? '1' : '180';
+                countryCountDisplay.textContent = selectedCountry ? '1' : formatStatValue(stats.countries || 0);
             }
 
             setApiLiveState('stats', 'ok', {
@@ -1079,10 +1069,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (filter === 'vegan') currentFilters.tags.push('en:vegan');
                     if (filter === 'vegetarian') currentFilters.tags.push('en:vegetarian');
                     if (filter === 'alcohol-free') currentFilters.tags.push('en:no-alcohol');
+                    if (filter === 'halal-only') currentFilters.halalOnly = true;
                 } else {
                     if (filter === 'vegan') currentFilters.tags = currentFilters.tags.filter(t => t !== 'en:vegan');
                     if (filter === 'vegetarian') currentFilters.tags = currentFilters.tags.filter(t => t !== 'en:vegetarian');
                     if (filter === 'alcohol-free') currentFilters.tags = currentFilters.tags.filter(t => t !== 'en:no-alcohol');
+                    if (filter === 'halal-only') currentFilters.halalOnly = false;
                 }
                 
                 currentPage = 1;
