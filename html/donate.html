@@ -1,375 +1,45 @@
 <!DOCTYPE html>
 <html lang="fr" data-portal="food">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faire un don - Halal Open Food Facts</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=20251229">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Faire un don — Halal Open Food Facts</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="robots" content="noindex">
     <style>
-        body {
-            background: var(--bg-gradient);
-            color: var(--text);
-        }
-
-        .donation-page {
-            width: min(1200px, 100%);
-            margin: 0 auto;
-            padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 3.5rem) 5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-        }
-
-        .site-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(18px);
-            border-bottom: 1px solid rgba(15, 27, 38, 0.08);
-            box-shadow: 0 18px 40px rgba(15, 27, 38, 0.08);
-        }
-
-        .site-header .ghost-btn--dark {
-            color: var(--text);
-            background: rgba(15, 27, 38, 0.05);
-            border-color: rgba(15, 27, 38, 0.15);
-        }
-
-        .donate-hero {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: clamp(2rem, 5vw, 3rem);
-            border-radius: 40px;
-            background: var(--card);
-            border: 1px solid rgba(15, 27, 38, 0.06);
-            box-shadow: 0 35px 90px rgba(15, 27, 38, 0.08);
-        }
-
-        .donate-hero__panel {
-            padding: 1.5rem;
-            border-radius: 28px;
-            background: linear-gradient(160deg, rgba(0, 140, 134, 0.08), rgba(0, 140, 134, 0.02));
-            border: 1px solid rgba(0, 140, 134, 0.12);
-        }
-
-        .hero-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(0, 140, 134, 0.12);
-            color: var(--primary);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.08em;
-        }
-
-        .hero-points {
-            list-style: none;
-            padding: 0;
-            margin: 1.5rem 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        .hero-points li {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .hero-points span {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: rgba(0, 140, 134, 0.12);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            color: var(--primary);
-        }
-
-        .donate-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-
-        .donate-metrics article {
-            background: #f7fbff;
-            border-radius: 20px;
-            padding: 1rem 1.2rem;
-            border: 1px solid rgba(15, 27, 38, 0.08);
-        }
-
-        .donate-metrics strong {
-            display: block;
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .donor-note {
-            background: rgba(0, 140, 134, 0.08);
-            border-radius: 20px;
-            padding: 0.85rem 1rem;
-            color: var(--text);
-            font-weight: 500;
-            margin: 1rem 0;
-        }
-
-        .donor-note--muted {
-            background: rgba(15, 27, 38, 0.05);
-            color: var(--muted);
-        }
-
-        .donor-note a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: underline;
-        }
-
-        .donate-panel__content h2 {
-            margin-top: 0;
-        }
-
-        .card-brand-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-
-        .card-brand-list span {
-            border-radius: 16px;
-            padding: 0.4rem 0.75rem;
-            border: 1px solid rgba(15, 27, 38, 0.1);
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        .wizard-preview dl,
-        .bank-option-card dl {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 0.8rem 1.2rem;
-            margin: 1.4rem 0;
-        }
-
-        .wizard-preview dt,
-        .bank-option-card dt {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-            margin-bottom: 0.15rem;
-        }
-
-        .wizard-preview dd,
-        .bank-option-card dd {
-            margin: 0;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .wizard-preview code {
-            padding: 0.3rem 0.6rem;
-            border-radius: 10px;
-            background: rgba(0, 140, 134, 0.08);
-            font-family: "Space Grotesk", "IBM Plex Mono", monospace;
-        }
-
-        .wizard-preview .summary-amount {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .wizard-preview .summary-hint {
-            color: var(--muted);
-            margin-top: 0.6rem;
-        }
-
-        .wizard-preview.is-visible {
-            box-shadow: 0 45px 110px rgba(0, 140, 134, 0.2);
-        }
-
-        .checkbox-stack {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            font-size: 0.95rem;
-            color: var(--muted);
-        }
-
-        .checkbox-stack input {
-            width: 18px;
-            height: 18px;
-        }
-
-        .payment-hint {
-            font-size: 0.95rem;
-            color: var(--muted);
-            margin: 1rem 0;
-        }
-
-        .bank-option-card__actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .copy-btn {
-            border: none;
-            padding: 0.85rem 1.5rem;
-            border-radius: 999px;
-            background: linear-gradient(120deg, var(--primary), #16c2bb);
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 12px 30px rgba(0, 140, 134, 0.25);
-        }
-
-        .bank-option-card__hint {
-            color: var(--muted);
-            margin: 0;
-        }
-
-        .transparency-section,
-        .support-contact {
-            background: var(--card);
-            border-radius: 36px;
-            border: 1px solid rgba(15, 27, 38, 0.06);
-            padding: clamp(2rem, 5vw, 3rem);
-            box-shadow: 0 30px 70px rgba(15, 27, 38, 0.08);
-        }
-
-        .transparency-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem;
-            margin-top: 1.5rem;
-        }
-
-        .transparency-card {
-            background: var(--card-strong);
-            border-radius: 28px;
-            padding: 1.5rem;
-            border: 1px solid rgba(15, 27, 38, 0.08);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-        }
-
-        .support-contact {
-            text-align: center;
-        }
-
-        .support-contact h2 {
-            margin-bottom: 0.5rem;
-        }
-
-        .support-contact p {
-            margin-bottom: 1.25rem;
-            color: var(--muted);
-        }
-
-        .support-contact .ghost-btn--dark {
-            background: linear-gradient(120deg, var(--primary), #16c2bb);
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 18px 45px rgba(0, 140, 134, 0.3);
-        }
-
-        @media (max-width: 640px) {
-            .donation-page {
-                padding: 2rem 1.5rem 3rem;
-            }
-
-            .donate-hero {
-                border-radius: 28px;
-            }
-        }
+        .donate-redirect { max-width: 1100px; margin: 3.5rem auto; padding: 2rem; text-align: center; }
+        .donate-iframe { width: 100%; height: 760px; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; }
+        .external-cta { display:inline-block; margin-top:1rem; padding:0.9rem 1.25rem; border-radius:999px; background:#0F9B7A; color:#fff; font-weight:700; text-decoration:none; }
+        .muted { color: var(--muted); margin-top: .6rem; display:block }
     </style>
 </head>
 <body>
-    <div class="top-strip">
-        <div class="top-strip__content">
-            <p class="top-strip__notice">Chaque don finance l'audit halal, l'hébergement et les outils libres de Halal Open Food Facts.</p>
-        </div>
-    </div>
-
     <header class="site-header">
         <div class="site-header__inner">
             <a class="brand brand--hero" href="index.html">
                 <img src="assets/images/e.png" alt="Logo Halal Open Food Facts" class="brand__logo">
-                <div class="brand__text">
-                    <span>Halal Open Food Facts</span>
-                    <small>Transparence alimentaire citoyenne</small>
-                </div>
+                <div class="brand__text"><span>Halal Open Food Facts</span></div>
             </a>
-            <nav class="primary-nav">
-                <a href="index.html#catalogue" class="ghost-btn ghost-btn--dark">Catalogue</a>
-                <a href="add.html" class="outline-btn">Ajouter un produit</a>
-                <a href="signin.html" class="solid-btn">Espace contributeur</a>
-            </nav>
         </div>
     </header>
 
-    <main class="donation-page">
-        <section class="donate-hero">
-            <div>
-                <p class="eyebrow">Soutenir Halal Open Food Facts</p>
-                <h1>Donner comme sur Donorbox, en trois étapes claires.</h1>
-                <p>Ce simulateur reprend l'expérience Donorbox utilisée par l'API Open Food Facts : montant, informations, puis paiement sécurisé (carte, PayPal ou débit direct). Chaque euro alimente les serveurs Halal Open Food Facts, la vérification des ingrédients sensibles et nos outils open source.</p>
-                <ul class="hero-points">
-                    <li><span>✓</span>Progression synchronisée avec le parcours Donorbox</li>
-                    <li><span>✓</span>Multi-moyens de paiement (carte, PayPal, SEPA)</li>
-                    <li><span>✓</span>Référence générée pour les reçus fiscaux</li>
-                </ul>
-                <div class="donate-metrics">
-                    <article>
-                        <strong>3</strong>
-                        <span>Étapes : montant → infos → paiement</span>
-                    </article>
-                    <article>
-                        <strong>72 h</strong>
-                        <span>Affectation maximale après validation</span>
-                    </article>
-                    <article>
-                        <strong>100%</strong>
-                        <span>Des dons pour Halal Open Food Facts</span>
-                    </article>
-                </div>
-            </div>
-            <div class="donate-hero__panel">
-                <span class="hero-tag">Donorbox · Stripe</span>
-                <p class="donor-note">Le formulaire Donorbox est en cours de chargement. Vous pouvez aussi y accéder en <a href="https://donorbox.org/openfoodfacts" target="_blank" rel="noopener">cliquant ici</a>.</p>
-                <div class="donate-panel__content">
-                    <h2>Choisir le montant</h2>
-                    <p>Utilisez la simulation ci-dessous : les montants, fréquences et informations saisis seront transmis lorsque vous ouvrirez Donorbox. Vous restez ainsi dans l'écosystème open source d'Open Food Facts.</p>
-                    <div class="card-brand-list" aria-label="Moyens acceptés">
-                        <span>VISA</span>
-                        <span>Mastercard</span>
-                        <span>Amex</span>
-                        <span>PayPal</span>
-                        <span>SEPA</span>
-                    </div>
-                    <p class="donor-note donor-note--muted">Les paiements sont traités par Stripe & Plaid, comme sur l'API Open Food Facts. Aucun numéro de carte n'est stocké sur ce site.</p>
-                </div>
-            </div>
-        </section>
+    <main class="donate-redirect">
+        <h1>Faire un don</h1>
+        <p>Nous avons migré les collectes vers Yapla. Le formulaire officiel est hébergé sur Yapla — vous pouvez donner directement depuis la page sécurisée.</p>
 
-        <section class="donor-layout">
-            <form id="donation-wizard" class="stepper-card" novalidate>
-                <div class="stepper-toolbar">
-                    <div>
-                        <p class="eyebrow">Formulaire sécurisé</p>
-                        <h2 class="stepper-toolbar__title" id="stepper-title">Choisir le montant</h2>
-                        <p class="wizard-subtitle">Étape <span id="stepper-step">1</span> / 3</p>
+        <!-- iframe fourni par l'utilisateur -->
+        <iframe class="donate-iframe" width="950" height="750" src="https://halal-open-food-facts.s2.yapla.com/fr/campaign-16372" frameborder="0" allowfullscreen></iframe>
+
+        <p><a class="external-cta" href="https://halal-open-food-facts.s2.yapla.com/fr/campaign-16372" target="_blank" rel="noopener">Je fais un don (ouvrir Yapla)</a></p>
+        <p class="muted">Si l'iframe ne s'affiche pas, cliquez sur le bouton pour ouvrir la page Yapla dans un nouvel onglet.</p>
+    </main>
+
+    <footer class="site-footer">
+        <p class="site-footer__copy">© Halal Open Food Facts · Merci à la communauté.</p>
+    </footer>
+
+</body>
+</html>
                     </div>
                     <div class="progress-dots" role="presentation">
                         <span class="is-active" data-progress-dot="1"></span>
