@@ -1,3 +1,20 @@
+// ── Sécurité : encodage HTML pour prévenir le XSS ──────────
+function esc(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/`/g, '&#x60;');
+}
+// ── Sanitisation des barcodes (chiffres uniquement) ──────────
+function sanitizeBarcode(code) {
+    if (!code) return '';
+    return String(code).replace(/[^0-9A-Za-z_-]/g, '');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const barcode = urlParams.get('code');
@@ -100,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchProductDetails(code) {
         try {
             // Essayer d'abord notre backend local (données locales + images)
-            const localResponse = await fetch(`/proxy/v2/product/${code}.json`);
+            const localResponse = await fetch(`/proxy/v2/product/${sanitizeBarcode(code)}.json`);
             if (localResponse.ok) {
                 const localData = await parseApiJsonResponse(localResponse, 'Fiche produit locale');
                 if (localData.product) {
