@@ -2,232 +2,232 @@
 
 # 🥗 Halal Open Food Facts
 
-### La base de données collaborative des produits alimentaires halal
+### The collaborative database for halal food products
 
 [![Production](https://img.shields.io/badge/production-halalopenfoodfacts.org-green?style=for-the-badge)](https://halalopenfoodfacts.org)
 [![GitHub](https://img.shields.io/badge/github-halalopenfoodfacts-181717?style=for-the-badge&logo=github)](https://github.com/halalopenfoodfacts-server/halalopenfoodfacts)
-[![Licence MIT](https://img.shields.io/badge/licence-MIT-blue?style=for-the-badge)](LICENSE)
-[![Données ODbL](https://img.shields.io/badge/données-ODbL-orange?style=for-the-badge)](https://opendatacommons.org/licenses/odbl/)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
+[![ODbL Data](https://img.shields.io/badge/data-ODbL-orange?style=for-the-badge)](https://opendatacommons.org/licenses/odbl/)
 
 </div>
 
 ---
 
-## ☪️ À propos
+## ☪️ About
 
-**Halal Open Food Facts** est un portail communautaire open-source permettant de consulter, rechercher et contribuer à une base de données de produits alimentaires certifiés halal.
+**Halal Open Food Facts** is an open-source community portal for browsing, searching, and contributing to a database of halal-certified food products.
 
-> 🗄️ **Infrastructure 100 % propriétaire** — Toutes les données sont hébergées sur **notre propre serveur PostgreSQL** (VPS OVH, Roubaix). Les dumps CSV d'Open Food Facts sont importés localement et synchronisés automatiquement.
+> 🗄️ **100% proprietary infrastructure** — All data is hosted on **our own PostgreSQL server** (OVH VPS, Roubaix). Open Food Facts CSV dumps are imported locally and synchronized automatically.
 >
-> 🚫 **Aucune requête n'est envoyée à l'API publique d'Open Food Facts** en production. Tout est servi depuis notre infrastructure.
+> 🚫 **No requests are sent to the public Open Food Facts API** in production. Everything is served from our own infrastructure.
 
-🔗 **Site** : https://halalopenfoodfacts.org  
-💄 **Portail cosmétiques** : https://halalopenbeautyfacts.org
+🔗 **Site**: https://halalopenfoodfacts.org
+💄 **Cosmetics portal**: https://halalopenbeautyfacts.org
 
 ---
 
-## 📊 Chiffres clés
+## 📊 Key figures
 
-| Indicateur | Valeur |
+| Metric | Value |
 |---|---|
-| 🛒 Produits alimentaires | **4 501 144** |
-| ☪️ Produits halal certifiés | **24 412** |
-| 🚫 Produits non conformes | **565** |
-| 🌍 Pays couverts | **400** |
-| 👥 Contributeurs | **42 846** |
+| 🛒 Food products | **4,501,144** |
+| ☪️ Halal-certified products | **24,412** |
+| 🚫 Non-compliant products | **565** |
+| 🌍 Countries covered | **400** |
+| 👥 Contributors | **42,846** |
 
 ---
 
-## 🏗️ Architecture du projet
+## 🏗️ Project architecture
 
 ```
 halalopenfoodfacts/
 │
-├── html/                          # 🌐 Frontend (servi par Nginx en production)
-│   ├── index.html                 # Catalogue — recherche, filtres, stats temps réel
-│   ├── product.html               # Fiche produit — 200+ champs, nutriscore, nova, code-barres SVG
-│   ├── excluded.html              # Produits non conformes (alcool, porc, gélatine…)
-│   ├── add.html                   # Formulaire de contribution produit
-│   ├── signin.html                # Authentification contributeur
-│   ├── legal.html                 # Mentions légales
-│   ├── terms.html                 # Conditions générales d'utilisation
+├── html/                          # 🌐 Frontend (served by Nginx in production)
+│   ├── index.html                 # Catalog — search, filters, real-time stats
+│   ├── product.html               # Product page — 200+ fields, nutriscore, nova, barcode SVG
+│   ├── excluded.html              # Non-compliant products (alcohol, pork, gelatin…)
+│   ├── add.html                   # Product contribution form
+│   ├── signin.html                # Contributor authentication
+│   ├── legal.html                 # Legal notice
+│   ├── terms.html                 # Terms of use
 │   └── assets/
 │       ├── css/
-│       │   ├── style.css          # Design principal — variables CSS, responsive mobile
-│       │   └── product.css        # Styles spécifiques à la fiche produit
+│       │   ├── style.css          # Main design — CSS variables, mobile responsive
+│       │   └── product.css        # Product page–specific styles
 │       └── js/
-│           ├── app.js             # Catalogue : recherche full-text, filtres halal, pagination, stats
-│           ├── product.js         # Fiche : rendu complet, JsBarcode SVG, safeGet(), parse_tags()
-│           ├── add.js             # Contribution : formulaire + upload image
-│           ├── nav.js             # Navigation responsive + menu mobile
-│           └── locale.js          # i18n fr / en / ar / es — changement à chaud, RTL arabe
+│           ├── app.js             # Catalog: full-text search, halal filters, pagination, stats
+│           ├── product.js         # Product page: full rendering, JsBarcode SVG, safeGet(), parse_tags()
+│           ├── add.js             # Contribution: form + image upload
+│           ├── nav.js             # Responsive navigation + mobile menu
+│           └── locale.js          # i18n fr / en / ar / es — live switching, Arabic RTL
 │
-├── backend/                       # ⚙️ API Django (partagée avec le portail beauty)
-│   ├── Dockerfile                 # Image Python 3.11 + Gunicorn
+├── backend/                       # ⚙️ Django API (shared with the beauty portal)
+│   ├── Dockerfile                 # Python 3.11 + Gunicorn image
 │   ├── requirements.txt           # Django 4.2, DRF, Celery, psycopg2, redis…
 │   ├── manage.py
 │   ├── config/
-│   │   ├── settings.py            # Config via variables d'environnement (.env)
-│   │   ├── urls.py                # Routage principal /api/*
-│   │   ├── celery.py              # Config Celery
+│   │   ├── settings.py            # Config via environment variables (.env)
+│   │   ├── urls.py                # Main routing /api/*
+│   │   ├── celery.py              # Celery configuration
 │   │   └── wsgi.py
 │   └── products/
-│       ├── models.py              # Modèle Product — portal, code, data JSONB (200+ champs)
+│       ├── models.py              # Product model — portal, code, JSONB data (200+ fields)
 │       ├── serializers.py         # ProductListSerializer + ProductDetailSerializer + parse_tags()
-│       ├── views.py               # Vues API — search, product, stats, top, recent, facets
-│       ├── urls.py                # Routes /api/v2/…
-│       ├── tasks.py               # Tâches Celery (sync delta)
+│       ├── views.py               # API views — search, product, stats, top, recent, facets
+│       ├── urls.py                # /api/v2/… routes
+│       ├── tasks.py               # Celery tasks (delta sync)
 │       └── management/commands/
-│           ├── import_full.py     # Import CSV complet OFF (streaming, ~4h)
-│           ├── sync_delta.py      # Sync delta horaire
-│           └── update_images.py   # Mise à jour URLs images
+│           ├── import_full.py     # Full CSV import from OFF (streaming, ~4h)
+│           ├── sync_delta.py      # Hourly delta sync
+│           └── update_images.py   # Image URL updates
 │
-├── docker-compose.yml             # 🐳 Stack complète — Postgres, Redis, Django, Celery, Nginx
-├── nginx.conf                     # Config Nginx dev (port 8090)
-├── .env.example                   # Template variables d'environnement (secrets exclus du dépôt)
+├── docker-compose.yml             # 🐳 Full stack — Postgres, Redis, Django, Celery, Nginx
+├── nginx.conf                     # Dev Nginx config (port 8090)
+├── .env.example                   # Environment variable template (secrets excluded from repo)
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## ⚙️ Stack technique
+## ⚙️ Tech stack
 
-| Composant | Technologie | Rôle |
+| Component | Technology | Role |
 |---|---|---|
-| Frontend | HTML5 / CSS3 / JS Vanilla | Zéro framework — léger et rapide |
-| Backend API | **Django 4.2** + DRF | API REST JSON — tous les endpoints `/api/*` |
-| Base de données | **PostgreSQL 16** | 4,5 M+ produits, données JSONB complètes |
-| Cache / Broker | **Redis 7** | Cache API + file de tâches Celery |
-| Tâches async | **Celery** + Celery Beat | Import delta automatique toutes les heures |
-| i18n | `locale.js` maison | fr / en / ar / es — RTL arabe automatique |
-| Reverse proxy prod | **Nginx système** + Let's Encrypt | HTTPS, `/proxy/*` → `127.0.0.1:8000` |
-| Code-barres | **JsBarcode 3.11.6** | Génération SVG locale EAN-8 / EAN-13 / CODE128 |
-| Hébergeur | **VPS OVH** — 51.83.97.15 | Debian, Roubaix |
+| Frontend | HTML5 / CSS3 / Vanilla JS | Zero framework — light and fast |
+| Backend API | **Django 4.2** + DRF | JSON REST API — all `/api/*` endpoints |
+| Database | **PostgreSQL 16** | 4.5M+ products, full JSONB data |
+| Cache / Broker | **Redis 7** | API cache + Celery task queue |
+| Async tasks | **Celery** + Celery Beat | Automatic hourly delta import |
+| i18n | Custom `locale.js` | fr / en / ar / es — automatic Arabic RTL |
+| Production reverse proxy | **System Nginx** + Let's Encrypt | HTTPS, `/proxy/*` → `127.0.0.1:8000` |
+| Barcode | **JsBarcode 3.11.6** | Local SVG generation for EAN-8 / EAN-13 / CODE128 |
+| Hosting | **OVH VPS** — 51.83.97.15 | Debian, Roubaix |
 
 ---
 
-## 🚀 API — Endpoints disponibles
+## 🚀 API — Available endpoints
 
-Le proxy Nginx redirige `/proxy/*` → `http://127.0.0.1:8000/api/*` avec l'en-tête `X-Portal: food`.
+The Nginx proxy redirects `/proxy/*` → `http://127.0.0.1:8000/api/*` with the `X-Portal: food` header.
 
-| Méthode | Endpoint | Description |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/proxy/v2/product/{code}.json` | Fiche produit complète (nutriscore, nova, ingrédients, allergènes…) |
-| GET | `/proxy/v2/search?q={terme}&page={n}` | Recherche full-text PostgreSQL |
-| GET | `/proxy/v2/search?is_halal=1` | Produits halal certifiés uniquement |
-| GET | `/proxy/v2/search?is_excluded=1` | Produits non conformes (alcool, porc…) |
+| GET | `/proxy/v2/product/{code}.json` | Full product sheet (nutriscore, nova, ingredients, allergens…) |
+| GET | `/proxy/v2/search?q={term}&page={n}` | PostgreSQL full-text search |
+| GET | `/proxy/v2/search?is_halal=1` | Halal-certified products only |
+| GET | `/proxy/v2/search?is_excluded=1` | Non-compliant products (alcohol, pork…) |
 | GET | `/proxy/stats` | `{ total, halal, excluded, countries, contributors }` |
-| GET | `/proxy/top` | Top produits les plus scannés |
-| GET | `/proxy/recent` | Produits récemment ajoutés |
-| GET | `/proxy/facets/` | Facettes — catégories, marques, pays, labels |
+| GET | `/proxy/top` | Most-scanned products |
+| GET | `/proxy/recent` | Recently added products |
+| GET | `/proxy/facets/` | Facets — categories, brands, countries, labels |
 
 ---
 
-## 💻 Démarrage rapide (développement local)
+## 💻 Quick start (local development)
 
-### Prérequis
+### Prerequisites
 - Docker + Docker Compose
 - Git
 
 ### Installation
 
 ```bash
-# 1. Cloner le dépôt
+# 1. Clone the repository
 git clone https://github.com/halalopenfoodfacts-server/halalopenfoodfacts.git
 cd halalopenfoodfacts
 
-# 2. Configurer les secrets
+# 2. Configure secrets
 cp .env.example .env
-# Éditer .env avec vos valeurs (SECRET_KEY, POSTGRES_PASSWORD…)
+# Edit .env with your own values (SECRET_KEY, POSTGRES_PASSWORD…)
 
-# 3. Lancer la stack complète
+# 3. Start the full stack
 docker compose up -d
 
-# Frontend Food  → http://localhost:8090
-# API Django     → http://localhost:8000
+# Food frontend  → http://localhost:8090
+# Django API     → http://localhost:8000
 ```
 
-### Import des données
+### Data import
 
 ```bash
-# Import complet depuis Open Food Facts (~4h en streaming)
+# Full import from Open Food Facts (~4h, streaming)
 docker exec halal_django python manage.py import_full --portal food
 
-# Synchronisation delta manuelle
+# Manual delta sync
 docker exec halal_django python manage.py sync_delta --portal food
 
-# Mise à jour images uniquement
+# Image URLs update only
 docker exec halal_django python manage.py update_images --portal food
 ```
 
 ---
 
-## 🌐 Déploiement production (VPS OVH)
+## 🌐 Production deployment (OVH VPS)
 
 ```bash
-# Déployer le frontend
+# Deploy the frontend
 sudo rsync -av --delete ./html/ /var/www/halalopenfoodfacts/
 sudo chown -R www-data:www-data /var/www/halalopenfoodfacts/
 
-# Rebuild + restart backend Django après modification Python
+# Rebuild + restart Django backend after Python code changes
 docker-compose -f /home/debian/halal-frontend/docker-compose.yml build django
 docker-compose -f /home/debian/halal-frontend/docker-compose.yml up -d django
 
-# Vérifier les logs
+# Check logs
 docker logs halal_django --tail=50
 ```
 
 ---
 
-## 🌍 Internationalisation
+## 🌍 Internationalization
 
-Le fichier `html/assets/js/locale.js` gère **4 langues** sans rechargement de page :
+The `html/assets/js/locale.js` file handles **4 languages** without page reload:
 
-| Code | Langue | Direction |
+| Code | Language | Direction |
 |---|---|---|
-| `fr` | Français | LTR |
+| `fr` | French | LTR |
 | `en` | English | LTR |
-| `ar` | العربية | **RTL** (automatique) |
-| `es` | Español | LTR |
+| `ar` | Arabic | **RTL** (automatic) |
+| `es` | Spanish | LTR |
 
 ---
 
-## 🤝 Contribuer
+## 🤝 Contributing
 
-1. Forkez ce dépôt
-2. Créez une branche : `git checkout -b feature/ma-fonctionnalite`
-3. Committez vos changements : `git commit -m 'feat: description'`
-4. Pushez : `git push origin feature/ma-fonctionnalite`
-5. Ouvrez une Pull Request
+1. Fork this repository
+2. Create a branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'feat: description'`
+4. Push: `git push origin feature/my-feature`
+5. Open a Pull Request
 
 ---
 
-## 📜 Mentions légales
+## 📜 Legal notice
 
 | | |
 |---|---|
-| Structure | Association Loi 1901 |
-| Adresse | 392 rue des Peupliers, 59800 Lille |
-| Directeur / DPO | M. Mustapha Zentar |
+| Structure | Non-profit association (French Law 1901) |
+| Address | 392 rue des Peupliers, 59800 Lille |
+| Director / DPO | Mr. Mustapha Zentar |
 | Contact | contact@halalopenfoodfacts.org |
-| Hébergeur | OVH SAS, 2 rue Kellermann, 59100 Roubaix |
+| Hosting provider | OVH SAS, 2 rue Kellermann, 59100 Roubaix |
 
 ---
 
-## 📄 Licences
+## 📄 Licenses
 
-| Périmètre | Licence |
+| Scope | License |
 |---|---|
-| Code source | [MIT](LICENSE) |
-| Données produits | [ODbL — Open Database License](https://opendatacommons.org/licenses/odbl/) |
-| Contenus (photos, textes contributeurs) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| Source code | [MIT](LICENSE) |
+| Product data | [ODbL — Open Database License](https://opendatacommons.org/licenses/odbl/) |
+| Content (photos, contributor text) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 
 ---
 
 <div align="center">
 
-Fait avec ☪️ par la communauté **Halal Open Facts**
+Made with ☪️ by the **Halal Open Facts** community
 
 [halalopenfoodfacts.org](https://halalopenfoodfacts.org) · [halalopenbeautyfacts.org](https://halalopenbeautyfacts.org)
 
@@ -239,8 +239,8 @@ Fait avec ☪️ par la communauté **Halal Open Facts**
 <img src="https://github.com/fleury-fcn.png" width="100" style="border-radius: 50%;" alt="Fleury Niyokwizera" />
 
 **Fleury NIYOKWIZERA**
-Master 1 in Applied Statistics and Business Intelligence, University of Burundi 🇧🇮 
-Currently pursuing a Master's in Data Modeling – University of Lille France  🇫🇷 
+Master 1 in Applied Statistics and Business Intelligence, University of Burundi 🇧🇮
+Currently pursuing a Master's in Data Modeling – University of Lille, France 🇫🇷
 
 [![GitHub](https://img.shields.io/badge/GitHub-fleury--fcn-181717?style=flat&logo=github&logoColor=white)](https://github.com/fleury-fcn)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Fleury_Niyokwizera-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/fleury-niyokwizera-2a9436291)
@@ -250,15 +250,3 @@ Currently pursuing a Master's in Data Modeling – University of Lille France  �
 ⭐ **If you find this project interesting, feel free to explore the
 repository and follow my work in AI, Machine Learning and Data
 Science.**
-
-
-
-
-
-
-
-
-
-
-
-
