@@ -1,3 +1,5 @@
+🇬🇧 English version · 🇫🇷 [Version française](README.fr.md)
+
 <div align="center">
 
 # 🥗 Halal Open Food Facts
