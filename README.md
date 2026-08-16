@@ -245,6 +245,12 @@ Currently pursuing a Master's in Data Modeling (Artificial Intelligence track) ‚
 [![GitHub](https://img.shields.io/badge/GitHub-fleury--fcn-181717?style=flat&logo=github&logoColor=white)](https://github.com/fleury-fcn)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Fleury_Niyokwizera-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/fleury-niyokwizera-2a9436291)
 
+------------------------------------------------------------------------
+
+‚≠ê **If you find this project interesting, feel free to explore the
+repository and follow my work in AI, Machine Learning and Data
+Science.**
+
 
 
 
